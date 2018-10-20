@@ -93,7 +93,7 @@ namespace Wohnungssuche
             ConsoleWriter.WriteLine("[DEBUG]", "Das Senden von Nachrichten während einer Debugsitzung ist deaktiviert.");
 #else
             // Benutzer via Mail über die neue Wohnung benachrichtigen.
-            //apaMail.SendMail("Neue Wohnung gefunden", htmlBody);
+            apaMail.SendMail("Neue Wohnung gefunden", htmlBody);
 #endif
         }
 
