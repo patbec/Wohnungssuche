@@ -27,7 +27,7 @@ namespace Wohnungssuche
         #region Properties
 
         /// <summary>
-        /// Gibt einen Wert zurück ob der Client nach neuen Servern sucht.
+        /// Gibt einen Wert zurück ob der Client nach neuen Wohnungen sucht.
         /// </summary>
         public bool IsActive
         {
@@ -35,7 +35,7 @@ namespace Wohnungssuche
         }
 
         /// <summary>
-        /// Gibt den Zeitraum in Sekunden zurück nachdem die Suche nach neuen Wohnungen wiederholt wird.
+        /// Gibt den Zeitraum in Sekunden zurück, nachdem die Suche nach neuen Wohnungen wiederholt wird.
         /// Dieser wird beträgt standardmäßig 60 Sekunden.
         /// </summary>
         public int Interval { get; }
