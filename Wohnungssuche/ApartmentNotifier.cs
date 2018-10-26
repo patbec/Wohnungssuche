@@ -35,6 +35,11 @@ namespace Wohnungssuche
         }
 
         /// <summary>
+        /// Gibt die Anzahl der Suchvorgänge zurück.
+        /// </summary>
+        public long Counter { get; private set; }
+
+        /// <summary>
         /// Gibt den Zeitraum in Sekunden zurück, nachdem die Suche nach neuen Wohnungen wiederholt wird.
         /// Dieser wird beträgt standardmäßig 60 Sekunden.
         /// </summary>
@@ -64,7 +69,7 @@ namespace Wohnungssuche
         /// <summary>
         /// Tritt auf wenn ein Suchlauf erfolgreich abgeschlossen wurde.
         /// </summary>
-        public EventHandler<long> SearchSuccessful;
+        public EventHandler SearchSuccessful;
 
         #endregion
 
@@ -138,17 +143,28 @@ namespace Wohnungssuche
         {
             try
             {
+                // Warten bis der Vorgang zugelassen wird.
+                m_lockToken.Wait();
+
                 // Prüfen ob der Task läuft.
                 if (IsActive)
                 {
                     // Abbruchanforderung an den Task senden.
                     m_token.Cancel();
+
+                    // Warten bis der Thread beendet wurde.
+                    WaitOnExit();
                 }
             }
             catch (Exception ex)
             {
                 // Ausnahme auslösen.
                 throw new ApplicationException("The search for new apartments could not be stopped.", ex);
+            }
+            finally
+            {
+                // Sperrobjekt lösen.
+                m_lockToken.Release();
             }
         }
 
@@ -167,8 +183,6 @@ namespace Wohnungssuche
         /// </summary>
         private void ListenOnApartments()
         {
-            long counter = 0;
-
             // Infomeldung schreiben.
             ConsoleWriter.WriteLine("Die Wohnungssuche wurde gestartet...");
 
@@ -176,13 +190,10 @@ namespace Wohnungssuche
             while (!m_token.IsCancellationRequested)
             {
                 // Zähler Hochzählen.
-                counter += 1;
+                Counter += 1;
 
                 try
                 {
-                    // Warten bis der Vorgang zugelassen wird.
-                    m_lockToken.Wait();
-
                     // Wohnung von der API Abrufen.
                     IEnumerable<ApartmentItem> result =
                         m_apartmentSearcher.GetItems();
@@ -199,17 +210,12 @@ namespace Wohnungssuche
                     }
 
                     // Event auslösen, dass der Suchvorgang erfolgreich beendet wurde.
-                    SearchSuccessful?.Invoke(this, counter);
+                    SearchSuccessful?.Invoke(this, EventArgs.Empty);
                 }
                 catch(Exception ex)
                 {
                     // Event auslösen, dass ein Anwendungsfehler aufgetreten ist.
                     ErrorOccurred?.Invoke(this, ex);
-                }
-                finally
-                {
-                    // Sperrobjekt lösen.
-                    m_lockToken.Release();
                 }
 
                 // Zeitraum abwarten bis nach neuen Wohnungen gesucht wird.

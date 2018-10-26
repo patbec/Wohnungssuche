@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using System.Threading;
 
 namespace Wohnungssuche
@@ -34,8 +35,11 @@ namespace Wohnungssuche
         {
             try
             {
+                // Aktuelle Anwendungsversion auslesen.
+                Version version = Assembly.GetExecutingAssembly().GetName().Version;
+
                 // Infomeldung schreiben.
-                ConsoleWriter.WriteLine("\nAnwendung zur Wohnungssuche", "(Version 1.0)\n");
+                ConsoleWriter.WriteLine("\nAnwendung zur Wohnungssuche", $"(Version {version})\n");
 
                 // SmptClient zum versenden von Mails vorbereiten.
                 apaMail = new MailingHelper(
@@ -83,7 +87,7 @@ namespace Wohnungssuche
         private static void ApartmentFoundEvent(object sender, ApartmentItem e)
         {
             // Infomeldung schreiben.
-            ConsoleWriter.WriteLine("Es wurde eine neue Wohnung gefunden!", ConsoleColor.Yellow);
+            ConsoleWriter.WriteLine(GetCurrentCounter(), "Es wurde eine neue Wohnung gefunden!", textColor: ConsoleColor.Yellow);
 
             // Nachricht als HTML formatieren.
             string htmlBody = e.ToString(enableHtml: true);
@@ -100,13 +104,13 @@ namespace Wohnungssuche
         /// <summary>
         /// Tritt auf wenn ein Suchlauf erfolgreich Abgeschlossen wurde.
         /// </summary>
-        private static void SearchSuccessfulEvent(object sender, long e)
+        private static void SearchSuccessfulEvent(object sender, EventArgs eventArgs)
         {
             // Fehlerzähler Zurücksetzten.
             ErrorCounter = 0;
 
             // Infomeldung über die Anzahl der bisherigen Suchvorgänge schreiben.
-            ConsoleWriter.WriteLine($"[{e.ToString("D4")}]", "Suchvorgang wurde erfolgreich abgeschlossen.");
+            ConsoleWriter.WriteLine(GetCurrentCounter(), "Suchvorgang wurde erfolgreich abgeschlossen.");
         }
 
         /// <summary>
@@ -118,12 +122,12 @@ namespace Wohnungssuche
             ErrorCounter += 1;
 
             // Infomeldung mit der Fehlermeldung schreiben.
-            ConsoleWriter.WriteLine("Bei der Suche nach Wohnungen ist ein Fehler aufgetreten:" + Environment.NewLine + e.Message, ConsoleColor.Red);
+            ConsoleWriter.WriteLine(GetCurrentCounter(), "Bei der Suche nach Wohnungen ist ein Fehler aufgetreten:" + Environment.NewLine + e.Message, textColor: ConsoleColor.Red);
 
             if(ErrorCounter >= ErrorThreshold)
             {
                 // Infomeldung schreiben.
-                ConsoleWriter.WriteLine(String.Format("Es wurde der Grenzwert für {0} Folgefehler erreicht, die Wohnungssuche wird nun beendet...", ErrorThreshold));
+                ConsoleWriter.WriteLine(GetCurrentCounter(), String.Format("Es wurde der Grenzwert für {0} Folgefehler erreicht, die Wohnungssuche wird nun beendet...", ErrorThreshold));
 
                 // Versuchen die Wohnungssuche zu beenden.
                 apaNotifi?.Stop();
@@ -131,5 +135,16 @@ namespace Wohnungssuche
         }
 
         #endregion
+
+        /// <summary>
+        /// Gibt einen Zähler zurück, der angibt wie viele Suchvorgänge ausgeführt worden sind.
+        /// Siehe <see cref="ApartmentNotifier.Counter"/> für weitere Information.
+        /// </summary>
+        /// <returns>Anzahl der Suchvorgänge.</returns>
+        private static string GetCurrentCounter()
+        {
+            // Zähler auslesen.
+            return $"[{apaNotifi.Counter.ToString("D4")}]";
+    }
     }
 }
