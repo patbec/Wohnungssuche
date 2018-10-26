@@ -138,9 +138,6 @@ namespace Wohnungssuche
         {
             try
             {
-                // Warten bis der Vorgang zugelassen wird.
-                m_lockToken.Wait();
-
                 // Prüfen ob der Task läuft.
                 if (IsActive)
                 {
@@ -152,11 +149,6 @@ namespace Wohnungssuche
             {
                 // Ausnahme auslösen.
                 throw new ApplicationException("The search for new apartments could not be stopped.", ex);
-            }
-            finally
-            {
-                // Sperrobjekt lösen.
-                m_lockToken.Release();
             }
         }
 
