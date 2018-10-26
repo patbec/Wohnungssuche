@@ -123,6 +123,10 @@ namespace Wohnungssuche
             // Mit XPath verfügbaren Wohnungen auslesen.
             HtmlNodeCollection nodes = pageDocument.DocumentNode.SelectNodes(XPathQuery);
 
+            // Falls keine Wohnungen vorhanden sind, Abbrechen.
+            if (nodes == null)
+                yield break;
+
             // Auflistung von gefundenen Wohnungen.
             foreach (HtmlNode node in nodes)
             {

@@ -123,7 +123,7 @@ namespace Wohnungssuche
             if(ErrorCounter >= ErrorThreshold)
             {
                 // Infomeldung schreiben.
-                ConsoleWriter.WriteLine(String.Format("Es wurde der Grenzwert für {0} Folgefehler erreicht, die Wohnungssuche nun wird beendet...", ErrorThreshold));
+                ConsoleWriter.WriteLine(String.Format("Es wurde der Grenzwert für {0} Folgefehler erreicht, die Wohnungssuche wird nun beendet...", ErrorThreshold));
 
                 // Versuchen die Wohnungssuche zu beenden.
                 apaNotifi?.Stop();
