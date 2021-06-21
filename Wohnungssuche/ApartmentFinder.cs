@@ -82,7 +82,7 @@ namespace Wohnungssuche
         /// bei einem neuen Suchtreffer das Event <see cref="NewApartmentFound"/> auslöst.
         /// </summary>
         /// <param name="interval">Zeitraum in Sekunden zurück nachdem die Suche nach neuen Wohnungen wiederholt wird.</param>
-        public ApartmentFinder(int interval = 60)
+        public ApartmentFinder(int interval = 600)
         {
             if (interval <= 0)
                 throw new ArgumentOutOfRangeException(nameof(interval), "The time specification is invalid.");
