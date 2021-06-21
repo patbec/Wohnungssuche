@@ -106,7 +106,7 @@ namespace Wohnungssuche
                 .Replace("%Size%",      WebUtility.HtmlEncode(e.LivingSpace))
                 .Replace("%Available%", WebUtility.HtmlEncode(e.Available));
 
-#if ! DEBUG
+#if DEBUG
             // Infomeldung schreiben.
             ConsoleWriter.WriteLine("[DEBUG]", "Das Senden von Nachrichten während einer Debugsitzung ist deaktiviert.");
 #else
