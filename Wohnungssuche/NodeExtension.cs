@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Text;
+using System.Linq;
 
 namespace Wohnungssuche
 {
@@ -24,8 +25,39 @@ namespace Wohnungssuche
                 // Prüfen ob des aktuelle Knoten ein Attribut besitzt.
                 if (currentItem.HasAttributes)
                 {
-                    // Attributwert der Eigenschaft Klasse auslesen und vergleichen.
-                    if (currentItem.GetAttributeValue("class", null) == attribute)
+                    // Attributwert der Eigenschaft Klasse auslesen
+                    string attributeValue = currentItem.GetAttributeValue("class", null);
+
+                    if(attributeValue != null)
+                    {
+                        // Attributwert aufteilen und vergleichen.
+                        if(attributeValue.Split(' ').Contains(attribute)) {
+                            return currentItem;    
+                        }
+                    }
+                }
+            }
+
+            // Ausnahme Auslösen wenn kein passender Knoten gefunden wurde.
+            throw new NodeNotFoundException();
+        }
+
+        /// <summary>
+        /// Ruf einen Node mit dem angegebenen Attributwert ab.
+        /// </summary>
+        /// <param name="attribute">Gesuchter Attributwert.</param>
+        /// <returns>Der gefundene Node mit dem angegebenen Attributwert.</returns>
+        /// <exception cref="NodeNotFoundException">Tritt auf wenn der Attributwert nicht gefunden wurde.</exception>
+        public static HtmlNode GetNodeById(this HtmlNodeCollection nodes, string id)
+        {
+            // Inhaltsknoten durchlaufen.
+            foreach (HtmlNode currentItem in nodes)
+            {
+                // Prüfen ob des aktuelle Knoten ein Attribut besitzt.
+                if (currentItem.HasAttributes)
+                {
+                    // Attributwert der Eigenschaft Id auslesen und vergleichen.
+                    if (currentItem.GetAttributeValue("id", null) == id)
                     {
                         // Wenn der Wert übereinstimmt zurückgeben.
                         return currentItem;

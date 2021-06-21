@@ -9,7 +9,7 @@ namespace Wohnungssuche
     /// </summary>
     public static class ConsoleWriter
     {
-        private static readonly object ConsoleWriterLock = new object();
+        private static readonly object ConsoleWriterLock = new();
 
         /// <summary>
         /// Schreibt threadsicher eine farbige Zeile in die Console.

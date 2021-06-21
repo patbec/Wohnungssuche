@@ -1,0 +1,128 @@
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+    <title>Neue Wohnung gefunden</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="preload" href="https://cdn.regiogate.net/font-packages/open-sans_all/files/open-sans-all-400.woff2"
+        as="font" crossorigin="">
+    <link rel="preload" href="https://cdn.regiogate.net/font-packages/open-sans_all/files/open-sans-all-600.woff2"
+        as="font" crossorigin="">
+    <link rel="preload" href="https://cdn.regiogate.net/font-packages/open-sans_all/files/open-sans-all-700.woff2"
+        as="font" crossorigin="">
+    <link rel="stylesheet" href="https://cdn.regiogate.net/font-packages/open-sans_all/index.css">
+    <style>
+        #flexbox {
+            display: flex;
+            width: 98%;
+            max-width: 1200px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .container_image {
+            float: left;
+            margin-top: 25px;
+            padding: 0px 15px;
+        }
+
+        .container_text {
+            float: right;
+        }
+
+        image {
+            object-fit: cover;
+        }
+
+        h2 {
+            font-size: 28px;
+        }
+
+        a {
+            color: #e14f13;
+            font-family: 'Open Sans', sans-serif;
+            font-style: normal;
+            font-weight: 600;
+            text-decoration: none;
+        }
+
+        p {
+            font-size: 18px;
+            font-family: 'Open Sans', sans-serif;
+            font-weight: 400;
+            font-style: normal;
+            color: #484848;
+            margin: 5px 0px;
+        }
+
+        img {
+            border-radius: 5px;
+        }
+
+        .immodb_bottom {
+            margin-bottom: 40px;
+        }
+
+        .immodb_trenner {
+            border: 1px solid #707070;
+            width: 100%;
+            clear: both;
+            margin-top: 20px;
+            margin-bottom: 15px;
+        }
+
+        .immodb_available {
+            float: left;
+        }
+
+        .btn-primary {
+        background: #e14f13;
+        border: none;
+        height: auto;
+        padding: 5px 35px;
+        width: auto;
+        float: right;
+        border-radius: 5px;
+        position: relative;
+        right: -5px;
+        color: #fff;
+        font-weight: bold;
+        transition: all 0.35s ease;
+        margin: 5px 0px;
+        }
+
+        .btn-primary:hover {
+            background: #ef9a23;
+            border: none;
+            color: #fff;
+            font-weight: bold;
+        }
+    </style>
+</head>
+
+<body style="margin: 0; padding: 0;">
+    <div id="flexbox">
+        <div class="container_image">
+            <img width="356px" height="256px" src="%Image%"></img>
+        </div>
+        <div class="container_text">
+            <h2><a href="%Id%">%Titel%</a></h2>
+
+            <div class="immodb_bottom">
+                <p><b>Zimmeranzahl:</b> %Rooms%</p>
+                <p><b>Gesamtmiete:</b> %Price%</p>
+                <p><b>Größe:</b> %Size%</p>
+            </div>
+
+            <hr class="immodb_trenner">
+
+            <div class="immodb_available">
+                <p><b>Verfügbar ab:</b> %Available%</p>
+            </div>
+
+            <a href="%Id%"><span class="immo_doc btn-primary">Exposé &amp; Kontakt</span></a>
+        </div>
+    </div>
+</body>
+
+</html>

@@ -41,15 +41,16 @@ namespace Wohnungssuche
         public void SendMail(string titel, string message)
         {
             // Neue Nachricht erstellen.
-            MailMessage mail = new MailMessage(address, address, titel, message)
+            MailMessage mail = new(address, address, titel, message)
             {
                 // Unterstützung für HTML aktiveren.
                 IsBodyHtml = true
             };
 
             // SmptServer anweisen die Mail Abzusenden.
-            new SmtpClient(host)
+            new SmtpClient(host, 587)
             {
+                EnableSsl = true,
                 // Zugangsdaten angeben.
                 Credentials = credentials
 

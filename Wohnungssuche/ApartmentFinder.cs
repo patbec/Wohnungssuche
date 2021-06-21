@@ -1,26 +1,30 @@
-﻿using System;
+﻿using HtmlAgilityPack;
+using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using System.Net;
 
 namespace Wohnungssuche
 {
     /// <summary>
     /// Sucht in einem Zeitintervall nach neuen Wohnungen und löst bei einem Fund ein Event aus.
     /// </summary>
-    public class ApartmentNotifier
+    public class ApartmentFinder
     {
         #region Private Fields
 
         private Task                        m_listener;
         private CancellationTokenSource     m_token;
 
-        private readonly ApartmentSearcher  m_apartmentSearcher;
         private readonly SemaphoreSlim      m_lockToken;
 
-        private readonly Dictionary<string, ApartmentItem> m_listApartments;
+        private readonly Dictionary<string, ApartmentElement> m_listApartments;
+
+        private const string SearchBaseUri = "https://www.stadtbau-wuerzburg.de/wohnungssuche/index.html";
+        private const string XPathQuery = "//div[@class='immodb_box row']";
 
         #endregion
 
@@ -50,7 +54,7 @@ namespace Wohnungssuche
         /// Wird eine neue Wohnung gefunden die sich nicht in dieser Auflistung befindet,
         /// wird das Event <see cref="NewApartmentFound"/> ausgelöst.
         /// </summary>
-        public ReadOnlyDictionary<string, ApartmentItem> CurrentApartments { get; }
+        public ReadOnlyDictionary<string, ApartmentElement> CurrentApartments { get; }
 
         #endregion
 
@@ -59,7 +63,7 @@ namespace Wohnungssuche
         /// <summary>
         /// Tritt auf wenn eine neue Wohnung gefunden wurde.
         /// </summary>
-        public EventHandler<ApartmentItem> NewApartmentFound;
+        public EventHandler<ApartmentElement> NewApartmentFound;
 
         /// <summary>
         /// Tritt auf wenn ein Suchfehler aufgetreten ist.
@@ -78,29 +82,23 @@ namespace Wohnungssuche
         /// bei einem neuen Suchtreffer das Event <see cref="NewApartmentFound"/> auslöst.
         /// </summary>
         /// <param name="interval">Zeitraum in Sekunden zurück nachdem die Suche nach neuen Wohnungen wiederholt wird.</param>
-        public ApartmentNotifier(ApartmentSearcher apartmentSearcher, int interval = 60)
+        public ApartmentFinder(int interval = 60)
         {
             if (interval <= 0)
-                throw new ArgumentOutOfRangeException("The time specification is invalid.");
+                throw new ArgumentOutOfRangeException(nameof(interval), "The time specification is invalid.");
 
-            if (apartmentSearcher == null)
-                throw new ArgumentNullException(nameof(apartmentSearcher));
-
-
-            // Sucher übergeben.
-            m_apartmentSearcher = apartmentSearcher;
 
             // Zeitintervall festlegen.
             Interval = interval;
 
             // Neue Auflistung für gefundene Wohnungen erstellen.
-            m_listApartments = new Dictionary<string, ApartmentItem>();
+            m_listApartments = new Dictionary<string, ApartmentElement>();
 
             // Neues Sperrobjekt erstellen.
             m_lockToken = new SemaphoreSlim(1, 1);
 
             // Nur lesbare Auflistung für die Eigenschaft erstellen.
-            CurrentApartments = new ReadOnlyDictionary<string, ApartmentItem>(m_listApartments);
+            CurrentApartments = new ReadOnlyDictionary<string, ApartmentElement>(m_listApartments);
         }
 
         /// <summary>
@@ -176,6 +174,37 @@ namespace Wohnungssuche
             m_token?.Token.WaitHandle?.WaitOne();
         }
 
+        /// <summary>
+        /// Ruft eine Auflistung von Wohnungen ab. Die Einstellungen sowie Parameter werden im Konstruktor festgelegt.
+        /// </summary>
+        /// <returns>Auflistung von verfügbaren Wohnungen, die den Suchkriterien entsprechen.</returns>
+        public static IEnumerable<ApartmentElement> GetItems()
+        {
+            // Anfrage senden.
+            string response =
+                new WebClient().DownloadString(SearchBaseUri);
+
+            // Neues Dokument erstellen.
+            HtmlDocument pageDocument = new();
+
+            // Serverantwort als HTML darstellen.
+            pageDocument.LoadHtml(response);
+
+            // Mit XPath verfügbaren Wohnungen auslesen.
+            HtmlNodeCollection nodes = pageDocument.DocumentNode.SelectNodes(XPathQuery);
+
+            // Falls keine Wohnungen vorhanden sind, Abbrechen.
+            if (nodes == null)
+                yield break;
+
+            // Auflistung von gefundenen Wohnungen.
+            foreach (HtmlNode node in nodes)
+            {
+                // Aus der Teilzeichenfolge ein Wohnungsobjekt erstellen und zurückgeben.
+                yield return ApartmentElement.Parse(node);
+            }
+        }
+
         #region Helper / Internal
 
         /// <summary>
@@ -195,11 +224,10 @@ namespace Wohnungssuche
                 try
                 {
                     // Wohnung von der API Abrufen.
-                    IEnumerable<ApartmentItem> result =
-                        m_apartmentSearcher.GetItems();
+                    IEnumerable<ApartmentElement> result = GetItems();
 
                     // Ergebnisse nach neuen Wohnungen durchsuchen.
-                    foreach (ApartmentItem apartment in result)
+                    foreach (ApartmentElement apartment in result)
                     {
                         // Versuchen die angegebene Wohnung hinzuzufügen.
                         if(TryAdd(apartment))
@@ -231,7 +259,7 @@ namespace Wohnungssuche
         /// </summary>
         /// <param name="apartment">Das Wohnungsobjekt.</param>
         /// <returns>False, wenn die angegebene Wohnung bereits bekannt ist. True, wenn das hinzufügen erfolgreich war.</returns>
-        private bool TryAdd(ApartmentItem apartment)
+        private bool TryAdd(ApartmentElement apartment)
         {
             if (apartment is null)
                 throw new ArgumentNullException(nameof(apartment));

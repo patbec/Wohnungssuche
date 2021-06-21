@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
+using System.Net;
 using System.Reflection;
 using System.Threading;
 
@@ -16,18 +18,18 @@ namespace Wohnungssuche
         private static long ErrorCounter = 0;
         private static readonly long ErrorThreshold = 15;
 
-        private static ApartmentSearcher apaSearch;
-        private static ApartmentNotifier apaNotifi;
-        private static MailingHelper     apaMail;
+        private static ApartmentFinder apaFinder;
+        private static MailingHelper apaMail;
+        private static string htmlBody;
 
         #endregion
 
         #region Constants
 
-        private const string SMTP_Address   = "app@bec-wolke.de";
-        private const string SMTP_Server    = "bec-wolke.de";
-        private const string SMTP_Username  = "app@bec-wolke.de";
-        private const string SMTP_Password  = "testinghall";
+        private static readonly string SMTP_Address  = Environment.GetEnvironmentVariable("SMTP_ADDRESS");
+        private static readonly string SMTP_Server   = Environment.GetEnvironmentVariable("SMTP_SERVER");
+        private static readonly string SMTP_Username = Environment.GetEnvironmentVariable("SMTP_USERNAME");
+        private static readonly string SMTP_Password = Environment.GetEnvironmentVariable("SMTP_PASSWORD");
 
         #endregion
 
@@ -41,6 +43,17 @@ namespace Wohnungssuche
                 // Infomeldung schreiben.
                 ConsoleWriter.WriteLine("\nAnwendung zur Wohnungssuche", $"(Version {version})\n");
 
+                // Vorlage zum Versenden von Mails einlesen.
+                htmlBody = File.ReadAllText(Path.Combine(AppContext.BaseDirectory, "banner.template"));
+
+                // Fehlkonfiguration abfangen.
+                if(String.IsNullOrWhiteSpace(SMTP_Address)) {
+                    throw new ArgumentNullException(nameof(SMTP_Address), "Specify settings for using mails in the environment variables.");
+                }
+                if(String.IsNullOrWhiteSpace(SMTP_Server)) {
+                    throw new ArgumentNullException(nameof(SMTP_Server), "Specify settings for using mails in the environment variables.");
+                }
+
                 // SmptClient zum versenden von Mails vorbereiten.
                 apaMail = new MailingHelper(
                     SMTP_Address,
@@ -49,26 +62,20 @@ namespace Wohnungssuche
                     SMTP_Password);
 
                 // Klasse mit den Sucheinstellungen für die Wohnungssuche.
-                apaSearch = new ApartmentSearcher(1, 6);
-
-                // Infomeldung schreiben.
-                ConsoleWriter.WriteLine($"Konfiguration der Anwendung:", $"\n{apaSearch}\n");
-
-                // Klasse um die Ergebnisse der Wohnungssuche aufzubereiten.
-                apaNotifi = new ApartmentNotifier(apaSearch, 60);
+                apaFinder = new ApartmentFinder();
 
                 // Tritt auf wenn eine neue Wohnung gefunden wurde.
-                apaNotifi.NewApartmentFound     += ApartmentFoundEvent;
+                apaFinder.NewApartmentFound     += ApartmentFoundEvent;
                 // Tritt auf wenn ein Suchlauf erfolgreich Abgeschlossen wurde.
-                apaNotifi.SearchSuccessful      += SearchSuccessfulEvent;
+                apaFinder.SearchSuccessful      += SearchSuccessfulEvent;
                 // Tritt auf wenn ein Anwendungsfehler aufgetreten ist.
-                apaNotifi.ErrorOccurred         += ErrorOccurredEvent;
+                apaFinder.ErrorOccurred         += ErrorOccurredEvent;
 
                 // Mit der Suche nach Wohnungen beginnen.
-                apaNotifi.Start();
+                apaFinder.Start();
 
                 // Warten bis die Wohnungssuche beendet wurde.
-                apaNotifi.WaitOnExit();
+                apaFinder.WaitOnExit();
 
                 //Thread.Sleep(Timeout.Infinite)
             }
@@ -84,20 +91,27 @@ namespace Wohnungssuche
         /// <summary>
         /// Tritt auf wenn eine neue Wohnung gefunden wurde.
         /// </summary>
-        private static void ApartmentFoundEvent(object sender, ApartmentItem e)
+        private static void ApartmentFoundEvent(object sender, ApartmentElement e)
         {
             // Infomeldung schreiben.
             ConsoleWriter.WriteLine(GetCurrentCounter(), "Es wurde eine neue Wohnung gefunden!", textColor: ConsoleColor.Yellow);
 
             // Nachricht als HTML formatieren.
-            string htmlBody = e.ToString(enableHtml: true);
+            string htmlResult = htmlBody
+                .Replace("%Id%",        WebUtility.HtmlEncode(e.Id))
+                .Replace("%Titel%",     WebUtility.HtmlEncode(e.Titel))
+                .Replace("%Image%",     WebUtility.HtmlEncode(e.Thumb))
+                .Replace("%Rooms%",     WebUtility.HtmlEncode(e.Rooms))
+                .Replace("%Price%",     WebUtility.HtmlEncode(e.Price))
+                .Replace("%Size%",      WebUtility.HtmlEncode(e.LivingSpace))
+                .Replace("%Available%", WebUtility.HtmlEncode(e.Available));
 
-#if DEBUG
+#if ! DEBUG
             // Infomeldung schreiben.
             ConsoleWriter.WriteLine("[DEBUG]", "Das Senden von Nachrichten während einer Debugsitzung ist deaktiviert.");
 #else
             // Benutzer via Mail über die neue Wohnung benachrichtigen.
-            apaMail.SendMail("Neue Wohnung gefunden", htmlBody);
+            apaMail.SendMail("Neue Wohnung gefunden", htmlResult);
 #endif
         }
 
@@ -129,8 +143,17 @@ namespace Wohnungssuche
                 // Infomeldung schreiben.
                 ConsoleWriter.WriteLine(GetCurrentCounter(), String.Format("Es wurde der Grenzwert für {0} Folgefehler erreicht, die Wohnungssuche wird nun beendet...", ErrorThreshold));
 
+                try {
+                    // Benutzer via Mail über die neue Wohnung benachrichtigen.
+                    apaMail.SendMail("Application Error", String.Format("Es wurde der Grenzwert für {0} Folgefehler erreicht, die Wohnungssuche wird nun beendet.", ErrorThreshold));
+
+                } catch (Exception ex) {
+                    // Infomeldung schreiben.
+                    ConsoleWriter.WriteLine(GetCurrentCounter(), String.Format("Es konnte keine Infomeldung über Fehler gesendet werden: {0}", ex.Message));
+                }
+
                 // Versuchen die Wohnungssuche zu beenden.
-                apaNotifi?.Stop();
+                apaFinder?.Stop();
             }
         }
 
@@ -144,7 +167,7 @@ namespace Wohnungssuche
         private static string GetCurrentCounter()
         {
             // Zähler auslesen.
-            return $"[{apaNotifi.Counter.ToString("D4")}]";
+            return $"[{apaFinder.Counter:D4}]";
     }
     }
 }
