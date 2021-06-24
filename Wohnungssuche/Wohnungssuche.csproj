@@ -8,6 +8,8 @@
     <NeutralLanguage>de-DE</NeutralLanguage>
     <Authors>Patrick Becker</Authors>
     <Version>1.0.0</Version>
+    <AssemblyName>wohnungssuche</AssemblyName>
+    <Description>Eine kleine Anwendung um im Raum Würzburg automatisch nach neuen Wohnungen zu suchen.</Description>
   </PropertyGroup>
 
   <ItemGroup>
@@ -16,6 +18,9 @@
 
    <ItemGroup>
     <None Update="banner.template">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="wohnungssuche.service">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
    </ItemGroup>

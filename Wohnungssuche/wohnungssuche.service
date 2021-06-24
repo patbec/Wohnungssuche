@@ -1,0 +1,17 @@
+[Unit]
+Description=Stadtbau Wohnungssuche
+
+[Service]
+ExecStart=/usr/share/wohnungssuche/wohnungssuche
+SyslogIdentifier=Wohnungssuche
+Restart=always                  
+RestartSec=5
+User=yourusername
+
+Environment=SMTP_ADDRESS=youraddress
+Environment=SMTP_SERVER=yourserver
+Environment=SMTP_USERNAME=yourusername
+Environment=SMTP_PASSWORD=yourpassword
+
+[Install]
+WantedBy=multi-user.target

@@ -10,7 +10,7 @@
             "request": "launch",
             "preLaunchTask": "build",
             // If you have changed target frameworks, make sure to update the program path.
-            "program": "${workspaceFolder}/Wohnungssuche/bin/Debug/net5.0/Wohnungssuche.dll",
+            "program": "${workspaceFolder}/Wohnungssuche/bin/Debug/net5.0/wohnungssuche.dll",
             "args": [],
             "cwd": "${workspaceFolder}/Wohnungssuche",
             // For more information about the 'console' field, see https://aka.ms/VSCode-CS-LaunchJson-Console
