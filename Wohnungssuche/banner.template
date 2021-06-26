@@ -11,6 +11,7 @@
     <link rel="preload" href="https://cdn.regiogate.net/font-packages/open-sans_all/files/open-sans-all-700.woff2"
         as="font" crossorigin="">
     <link rel="stylesheet" href="https://cdn.regiogate.net/font-packages/open-sans_all/index.css">
+
     <style>
         #flexbox {
             display: flex;
@@ -20,10 +21,15 @@
             margin-right: auto;
         }
 
-        .container_image {
+        .container_image_1 {
             float: left;
             margin-top: 25px;
             padding: 0px 15px;
+        }
+
+        .container_image_2 {
+            padding-top: 90px;
+            text-align: center;
         }
 
         .container_text {
@@ -97,12 +103,29 @@
             color: #fff;
             font-weight: bold;
         }
+
+        .container_image_1 {
+            display: block;
+        }
+        .container_image_2 {
+            display: none;
+        }
+
+        @media screen and (max-width: 870px) {
+            .container_image_1 {
+                display: none;
+            }
+            .container_image_2 {
+                display: block;
+            }
+        }
+
     </style>
 </head>
 
 <body style="margin: 0; padding: 0;">
     <div id="flexbox">
-        <div class="container_image">
+        <div class="container_image_1">
             <img width="356px" height="256px" src="%Image%"></img>
         </div>
         <div class="container_text">
@@ -121,8 +144,12 @@
             </div>
 
             <a href="%Id%"><span class="immo_doc btn-primary">Exposé &amp; Kontakt</span></a>
+            <div class="container_image_2">
+                <img width="356px" height="256px" src="%Image%"></img>
+            </div>
         </div>
     </div>
+    
 </body>
 
 </html>
