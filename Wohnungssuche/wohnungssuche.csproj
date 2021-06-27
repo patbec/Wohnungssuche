@@ -7,7 +7,7 @@
     <FileVersion>3.0.0.0</FileVersion>
     <NeutralLanguage>de-DE</NeutralLanguage>
     <Authors>Patrick Becker</Authors>
-    <Version>1.0.2</Version>
+    <Version>1.0.3</Version>
     <AssemblyName>wohnungssuche</AssemblyName>
     <Description>Eine kleine Anwendung um im Raum Würzburg automatisch nach neuen Wohnungen zu suchen.</Description>
   </PropertyGroup>

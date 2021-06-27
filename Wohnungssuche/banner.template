@@ -13,27 +13,32 @@
     <link rel="stylesheet" href="https://cdn.regiogate.net/font-packages/open-sans_all/index.css">
 
     <style>
-        #flexbox {
+        body {
+            margin: 16px;
+            padding: 0px;
+        }
+        
+        .flexbox {
             display: flex;
-            width: 98%;
             max-width: 1200px;
             margin-left: auto;
             margin-right: auto;
         }
 
-        .container_image_1 {
+        .imagebox_1 {
             float: left;
             margin-top: 25px;
             padding: 0px 15px;
         }
 
-        .container_image_2 {
+        .imagebox_2 {
             padding: 90px 0px;
             text-align: center;
         }
 
         .container_text {
             float: right;
+            width: 100%;
         }
 
         image {
@@ -82,19 +87,19 @@
         }
 
         .btn-primary {
-        background: #e14f13;
-        border: none;
-        height: auto;
-        padding: 5px 35px;
-        width: auto;
-        float: right;
-        border-radius: 5px;
-        position: relative;
-        right: -5px;
-        color: #fff;
-        font-weight: bold;
-        transition: all 0.35s ease;
-        margin: 5px 0px;
+            background: #e14f13;
+            border: none;
+            height: auto;
+            padding: 5px 35px;
+            width: auto;
+            float: right;
+            border-radius: 5px;
+            position: relative;
+            right: -3px;
+            color: #fff;
+            font-weight: bold;
+            transition: all 0.35s ease;
+            margin: 5px 0px;
         }
 
         .btn-primary:hover {
@@ -104,28 +109,27 @@
             font-weight: bold;
         }
 
-        .container_image_1 {
+        .imagebox_1 {
             display: block;
         }
-        .container_image_2 {
+        .imagebox_2 {
             display: none;
         }
 
         @media screen and (max-width: 870px) {
-            .container_image_1 {
+            .imagebox_1 {
                 display: none;
             }
-            .container_image_2 {
+            .imagebox_2 {
                 display: block;
             }
         }
-
     </style>
 </head>
 
-<body style="margin: 0; padding: 0;">
-    <div id="flexbox">
-        <div class="container_image_1">
+<body>
+    <div id="flexbox" class="flexbox">
+        <div class="imagebox_1">
             <img width="356px" height="256px" src="%Image%"></img>
         </div>
         <div class="container_text">
@@ -144,7 +148,7 @@
             </div>
 
             <a href="%Id%"><span class="immo_doc btn-primary">Exposé &amp; Kontakt</span></a>
-            <div class="container_image_2">
+            <div class="imagebox_2">
                 <img width="356px" height="256px" src="%Image%"></img>
             </div>
         </div>
