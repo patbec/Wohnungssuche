@@ -1,10 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Data;
 using System.IO;
 using System.Linq;
 using System.Net;
 using System.Reflection;
-using System.Threading;
+using System.Security.Cryptography;
+using System.Text;
 
 namespace Wohnungssuche
 {
@@ -46,6 +48,10 @@ namespace Wohnungssuche
                 // Vorlage zum Versenden von Mails einlesen.
                 htmlBody = File.ReadAllText(Path.Combine(AppContext.BaseDirectory, "banner.template"));
 
+#if DEBUG
+                // Infomeldung schreiben.
+                ConsoleWriter.WriteLine("[DEBUG]", "Das Senden von Nachrichten während einer Debugsitzung ist deaktiviert.");
+#else
                 // Fehlkonfiguration abfangen.
                 if(String.IsNullOrWhiteSpace(SMTP_Address)) {
                     throw new ArgumentNullException(nameof(SMTP_Address), "Specify settings for using mails in the environment variables.");
@@ -53,6 +59,7 @@ namespace Wohnungssuche
                 if(String.IsNullOrWhiteSpace(SMTP_Server)) {
                     throw new ArgumentNullException(nameof(SMTP_Server), "Specify settings for using mails in the environment variables.");
                 }
+#endif
 
                 // SmptClient zum versenden von Mails vorbereiten.
                 apaMail = new MailingHelper(
@@ -93,26 +100,43 @@ namespace Wohnungssuche
         /// </summary>
         private static void ApartmentFoundEvent(object sender, ApartmentElement e)
         {
-            // Infomeldung schreiben.
-            ConsoleWriter.WriteLine(GetCurrentCounter(), "Es wurde eine neue Wohnung gefunden!", textColor: ConsoleColor.Yellow);
+            byte[] data = Encoding.Default.GetBytes(e.Titel);
+            byte[] result = MD5.Create().ComputeHash(data);
 
-            // Nachricht als HTML formatieren.
-            string htmlResult = htmlBody
-                .Replace("%Id%",        WebUtility.HtmlEncode(e.Id))
-                .Replace("%Titel%",     WebUtility.HtmlEncode(e.Titel))
-                .Replace("%Image%",     WebUtility.HtmlEncode(e.Thumb))
-                .Replace("%Rooms%",     WebUtility.HtmlEncode(e.Rooms))
-                .Replace("%Price%",     WebUtility.HtmlEncode(e.Price))
-                .Replace("%Size%",      WebUtility.HtmlEncode(e.LivingSpace))
-                .Replace("%Available%", WebUtility.HtmlEncode(e.Available));
+            string filename = Convert.ToHexString(result) + ".cache";
+            string dirpath = Path.Combine(Path.GetTempPath(), "wohnungssuche");
+            string filepath = Path.Combine(dirpath, filename);
+
+            if(File.Exists(filepath)) {
+                // Infomeldung schreiben.
+                ConsoleWriter.WriteLine(GetCurrentCounter(), "Es wurde eine bereits gesendete Wohnung gefunden!", textColor: ConsoleColor.Yellow);
+            }
+            else {
+                // Wohnung in den Cache schreiben, beim erneuten Programmstart werden nur neue Wohnungen gesendet.
+                Directory.CreateDirectory(dirpath);
+                File.Create(filepath).Close();
+
+                // Infomeldung schreiben.
+                ConsoleWriter.WriteLine(GetCurrentCounter(), "Es wurde eine neue Wohnung gefunden!", textColor: ConsoleColor.Yellow);
+
+                // Nachricht als HTML formatieren.
+                string htmlResult = htmlBody
+                    .Replace("%Id%",        WebUtility.HtmlEncode(e.Id))
+                    .Replace("%Titel%",     WebUtility.HtmlEncode(e.Titel))
+                    .Replace("%Image%",     WebUtility.HtmlEncode(e.Thumb))
+                    .Replace("%Rooms%",     WebUtility.HtmlEncode(e.Rooms))
+                    .Replace("%Price%",     WebUtility.HtmlEncode(e.Price))
+                    .Replace("%Size%",      WebUtility.HtmlEncode(e.LivingSpace))
+                    .Replace("%Available%", WebUtility.HtmlEncode(e.Available));
 
 #if DEBUG
-            // Infomeldung schreiben.
-            ConsoleWriter.WriteLine("[DEBUG]", "Das Senden von Nachrichten während einer Debugsitzung ist deaktiviert.");
+                // Infomeldung schreiben.
+                ConsoleWriter.WriteLine("[DEBUG]", "Das Senden von Nachrichten während einer Debugsitzung ist deaktiviert.");
 #else
-            // Benutzer via Mail über die neue Wohnung benachrichtigen.
-            apaMail.SendMail("Neue Wohnung gefunden", htmlResult);
+                // Benutzer via Mail über die neue Wohnung benachrichtigen.
+                apaMail.SendMail("Neue Wohnung gefunden", htmlResult);
 #endif
+            }
         }
 
         /// <summary>
