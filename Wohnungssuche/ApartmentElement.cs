@@ -153,10 +153,14 @@ namespace Wohnungssuche
             HtmlNodeCollection items = node.ChildNodes;
 
             // Vorschaubild Abrufen.
-            HtmlNode nodeThumb = items.GetNodeByAttribute(ImmoThumb).FirstChild;
+            HtmlNode nodeThumb = items.GetNodeByAttribute(ImmoThumb)?.FirstChild;
 
             // Details der Wohnung Abrufen.
             HtmlNode nodeContent = items.GetNodeByAttribute(ImmoContent);
+
+            // Ausnahme wenn Inhaltsknoten nicht gefunden.
+            if(nodeContent == null)
+                throw new NodeAttributeNotFoundException();
 
             // Erweiterte Inhaltsbeschreibung Abrufen.
             HtmlNodeCollection itemsContent = nodeContent.ChildNodes;
@@ -165,30 +169,30 @@ namespace Wohnungssuche
             HtmlNode nodeId = nodeContent.LastChild;
 
             // Titel der Wohnung Abrufen.
-            HtmlNode nodeTitle = itemsContent.GetNodeByAttribute(ImmoTitle).FirstChild;
+            HtmlNode nodeTitle = itemsContent.GetNodeByAttribute(ImmoTitle)?.FirstChild;
 
             // Verfügbarkeit der Wohnung Abrufen.
-            HtmlNode nodeAvailable = itemsContent.GetNodeByAttribute(ImmoAvailable).FirstChild.NextSibling;
+            HtmlNode nodeAvailable = itemsContent.GetNodeByAttribute(ImmoAvailable)?.FirstChild?.NextSibling;
 
             // Zimmeranzahl, Mietpreis und Größe Abrufen.
-            HtmlNodeCollection nodeData = itemsContent.GetNodeByAttribute(ImmoData).ChildNodes;
+            HtmlNodeCollection nodeData = itemsContent.GetNodeByAttribute(ImmoData)?.ChildNodes;
 
             // Anzahl der Zimmer Abrufen.
-            HtmlNode nodeRooms = nodeData.GetNodeById(ImmoRoomCount).FirstChild.NextSibling;
+            HtmlNode nodeRooms = nodeData.GetNodeById(ImmoRoomCount)?.FirstChild?.NextSibling;
 
             // Mietpreis Abrufen.
-            HtmlNode nodePrice = nodeData.GetNodeByAttribute(ImmoPrice).FirstChild.NextSibling;
+            HtmlNode nodePrice = nodeData.GetNodeByAttribute(ImmoPrice)?.FirstChild?.NextSibling;
 
             // Wohnraum in m² Abrufen.
-            HtmlNode nodeLivingSpace = nodeData.GetNodeByAttribute(ImmoSize).FirstChild.NextSibling;
+            HtmlNode nodeLivingSpace = nodeData.GetNodeByAttribute(ImmoSize)?.FirstChild?.NextSibling;
 
             string id = "https://www.stadtbau-wuerzburg.de" + WebUtility.HtmlDecode(nodeId.Attributes[0].Value);
-            string titel = WebUtility.HtmlDecode(nodeTitle.InnerText).Trim();
-            string price = WebUtility.HtmlDecode(nodePrice.InnerText);
-            string livingSpace = WebUtility.HtmlDecode(nodeLivingSpace.InnerText);
-            string rooms = WebUtility.HtmlDecode(nodeRooms.InnerText);
+            string titel = WebUtility.HtmlDecode(nodeTitle?.InnerText ?? "Kein Titel vorhanden").Trim();
+            string price = WebUtility.HtmlDecode(nodePrice?.InnerText ?? "Unbekannt");
+            string livingSpace = WebUtility.HtmlDecode(nodeLivingSpace?.InnerText ?? "Unbekannt");
+            string rooms = WebUtility.HtmlDecode(nodeRooms?.InnerText ?? "Unbekannt");
             string thumb = WebUtility.HtmlDecode(GetImage(nodeThumb));
-            string available = WebUtility.HtmlDecode(nodeAvailable.InnerText).Trim();
+            string available = WebUtility.HtmlDecode(nodeAvailable?.InnerText ?? "Unbekannt").Trim();
 
             // Neues Wohnungsobjekt erstellen und zurückgeben.
             return new ApartmentElement(

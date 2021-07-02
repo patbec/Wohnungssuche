@@ -38,8 +38,9 @@ namespace Wohnungssuche
                 }
             }
 
-            // Ausnahme Auslösen wenn kein passender Knoten gefunden wurde.
-            throw new NodeNotFoundException();
+            return null;
+            // // Ausnahme Auslösen wenn kein passender Knoten gefunden wurde.
+            // throw new NodeNotFoundException();
         }
 
         /// <summary>
@@ -65,8 +66,9 @@ namespace Wohnungssuche
                 }
             }
 
-            // Ausnahme Auslösen wenn kein passender Knoten gefunden wurde.
-            throw new NodeNotFoundException();
+            return null;
+            // // Ausnahme Auslösen wenn kein passender Knoten gefunden wurde.
+            // throw new NodeNotFoundException();
         }
     }
 }
