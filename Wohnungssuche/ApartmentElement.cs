@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
+using System.Linq;
 using System.Net;
 using System.Text;
 
@@ -15,15 +16,15 @@ namespace Wohnungssuche
     {
         #region Parser Data
         
-        private const string ImmoIdentifier = "immodb_box row";
+        private const string ImmoIdentifier = "immo-preview-group asidemain-container";
         private const string ImmoTitle      = "immodb_title";
-        private const string ImmoThumb      = "wohnungBild";
-        private const string ImmoContent    = "immodb_box_content";
-        private const string ImmoData       = "immodb_bottom";
-        private const string ImmoAvailable  = "available";
-        private const string ImmoRoomCount  = "immodb_roomcount";
-        private const string ImmoPrice      = "immodb_km";
-        private const string ImmoSize       = "size";
+        private const string ImmoThumb      = "immo-prev-thumb module";
+        private const string ImmoObject     = "immo-preview-txt module";
+        private const string ImmoData       = "immo-data";
+        private const string ImmoAvailable  = "Verfügbar ab:";
+        private const string ImmoRoomCount  = "Zimmeranzahl: ";
+        private const string ImmoPrice      = "Kaltmiete:";
+        private const string ImmoSize       = "Gr&ouml;&szlig;e:";
 
         #endregion
 
@@ -119,23 +120,6 @@ namespace Wohnungssuche
 
         #region Static
 
-        private static string GetImage(HtmlNode node) {
-            try {
-                var style = node.Attributes[2].Value;
-
-                int charStart = style.IndexOf('(');
-                int charEnd = style.IndexOf(')');
-
-                if(charStart == -1 || charEnd == -1) {
-                    return "";
-                }
-
-                return style.Substring(charStart + 1,
-                                       charEnd - charStart - 1);
-            } catch {
-                return "";
-            }
-        }
         /// <summary>
         /// Konvertiert eine Teilzeichenfolge der zurückgegebenen Antwort der API und erstellt ein Wohnungsobjekt. 
         /// </summary>
@@ -152,51 +136,48 @@ namespace Wohnungssuche
 
             HtmlNodeCollection items = node.ChildNodes;
 
-            // Vorschaubild Abrufen.
-            HtmlNode nodeThumb = items.GetNodeByAttribute(ImmoThumb)?.FirstChild;
+            // Vorschaubild und Abrufen.
+            HtmlNode nodeThumb = items.GetNodeByType("src");
+
+            // Hyperlink und Titel der Wohnung Abrufen.
+            HtmlNode nodeObject = items.GetNodeByType("href");
 
             // Details der Wohnung Abrufen.
-            HtmlNode nodeContent = items.GetNodeByAttribute(ImmoContent);
+            HtmlNode nodeContent = items.GetNodeByAttribute(ImmoData, true);
 
             // Ausnahme wenn Inhaltsknoten nicht gefunden.
-            if(nodeContent == null)
+            if (nodeContent == null || nodeObject == null)
                 throw new NodeAttributeNotFoundException();
+
 
             // Erweiterte Inhaltsbeschreibung Abrufen.
             HtmlNodeCollection itemsContent = nodeContent.ChildNodes;
 
-            // Id der Wohnung Abrufen.
-            HtmlNode nodeId = nodeContent.LastChild;
-
-            // Titel der Wohnung Abrufen.
-            HtmlNode nodeTitle = itemsContent.GetNodeByAttribute(ImmoTitle)?.FirstChild;
-
             // Verfügbarkeit der Wohnung Abrufen.
-            HtmlNode nodeAvailable = itemsContent.GetNodeByAttribute(ImmoAvailable)?.FirstChild?.NextSibling;
-
-            // Zimmeranzahl, Mietpreis und Größe Abrufen.
-            HtmlNodeCollection nodeData = itemsContent.GetNodeByAttribute(ImmoData)?.ChildNodes;
+            HtmlNode nodeAvailable = itemsContent.GetNodeByTextValue(ImmoAvailable)?.NextSibling?.NextSibling;
 
             // Anzahl der Zimmer Abrufen.
-            HtmlNode nodeRooms = nodeData.GetNodeById(ImmoRoomCount)?.FirstChild?.NextSibling;
+            HtmlNode nodeRooms = itemsContent.GetNodeByTextValue(ImmoRoomCount)?.NextSibling?.NextSibling;
 
             // Mietpreis Abrufen.
-            HtmlNode nodePrice = nodeData.GetNodeByAttribute(ImmoPrice)?.FirstChild?.NextSibling;
+            HtmlNode nodePrice = itemsContent.GetNodeByTextValue(ImmoPrice)?.NextSibling?.NextSibling;
 
             // Wohnraum in m² Abrufen.
-            HtmlNode nodeLivingSpace = nodeData.GetNodeByAttribute(ImmoSize)?.FirstChild?.NextSibling;
+            HtmlNode nodeSpace = itemsContent.GetNodeByTextValue(ImmoSize)?.NextSibling?.NextSibling;
 
-            string id = "https://www.stadtbau-wuerzburg.de" + WebUtility.HtmlDecode(nodeId.Attributes[0].Value);
-            string titel = WebUtility.HtmlDecode(nodeTitle?.InnerText ?? "Kein Titel vorhanden").Trim();
-            string price = WebUtility.HtmlDecode(nodePrice?.InnerText ?? "Unbekannt");
-            string livingSpace = WebUtility.HtmlDecode(nodeLivingSpace?.InnerText ?? "Unbekannt");
-            string rooms = WebUtility.HtmlDecode(nodeRooms?.InnerText ?? "Unbekannt");
-            string thumb = WebUtility.HtmlDecode(GetImage(nodeThumb));
-            string available = WebUtility.HtmlDecode(nodeAvailable?.InnerText ?? "Unbekannt").Trim();
+            string titel        = WebUtility.HtmlDecode(nodeObject?.InnerText ?? "Kein Titel vorhanden").Trim();
+            string price        = WebUtility.HtmlDecode(nodePrice?.InnerText ?? "Unbekannt");
+            string livingSpace  = WebUtility.HtmlDecode(nodeSpace?.InnerText ?? "Unbekannt");
+            string rooms        = WebUtility.HtmlDecode(nodeRooms?.InnerText ?? "Unbekannt");
+
+            string available    = WebUtility.HtmlDecode(nodeAvailable?.InnerText ?? "Unbekannt").Trim();
+
+            string thumb        = WebUtility.HtmlDecode(nodeThumb.Attributes[0].Value);
+            string link         = WebUtility.HtmlDecode(nodeObject.Attributes[0].Value);
 
             // Neues Wohnungsobjekt erstellen und zurückgeben.
             return new ApartmentElement(
-                id,
+                link,
                 titel,
                 price,
                 livingSpace,

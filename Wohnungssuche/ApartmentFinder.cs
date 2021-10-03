@@ -23,8 +23,8 @@ namespace Wohnungssuche
 
         private readonly Dictionary<string, ApartmentElement> m_listApartments;
 
-        private const string SearchBaseUri = "https://www.stadtbau-wuerzburg.de/wohnungssuche/index.html";
-        private const string XPathQuery = "//div[@class='immodb_box row']";
+        private const string SearchBaseUri = "https://www.stadtbau-wuerzburg.de/wohnungssuche/";
+        private const string XPathQuery = "//div[@class='immo-preview-group asidemain-container']";
 
         #endregion
 
