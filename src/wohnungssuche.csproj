@@ -1,14 +1,11 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <OutputType>Exe</OutputType>
-    <TargetFramework>net5.0</TargetFramework>
-    <AssemblyVersion>4.0.0.0</AssemblyVersion>
-    <FileVersion>4.0.0.0</FileVersion>
+    <TargetFramework>net6.0</TargetFramework>
     <NeutralLanguage>de-DE</NeutralLanguage>
-    <Authors>Patrick Becker</Authors>
-    <Version>1.1.0</Version>
-    <AssemblyName>wohnungssuche</AssemblyName>
+    <Copyright>Patrick Becker</Copyright>
+    <AssemblyTitle>wohnungssuche</AssemblyTitle>
+    <AssemblyVersion>1.2.0</AssemblyVersion>
     <Description>Eine kleine Anwendung um im Raum Würzburg automatisch nach neuen Wohnungen zu suchen.</Description>
   </PropertyGroup>
 

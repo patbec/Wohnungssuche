@@ -1,6 +1,6 @@
 # Wohnungssuche
 
-![Screenshot Banner](https://github.com/patbec/Wohnungssuche/blob/master/preview-wohnungssuche.png?raw=true)
+![Screenshot Banner](/docs/screenshot.png)
 
 ### Beschreibung
 Eine kleine Anwendung um im Raum Würzburg automatisch nach neuen Wohnungen zu suchen. Der Anbieter Stadtbau bietet keine Möglichkeit sich neue Angebote via Mail zusenden zu lassen.
@@ -8,18 +8,18 @@ Eine kleine Anwendung um im Raum Würzburg automatisch nach neuen Wohnungen zu s
 ### Installation und Ausführung
 
 Die Anwendung wird in den Ordner `/usr/share/wohnungssuche` installiert. Mit der im Installationsordner enthaltenen **systemd** Dienstdatei ist eine Ausführung im Hintergrund möglich.
-Die Dienstdatei mit dem Befehl `sudo nano /usr/share/wohnungssuche/wohnungssuche.service` zum bearbeiten öffnen und die folgenden Umgebungsvariablen anpassen um das automatische versenden von Mails für neue Wohnungen zu aktivieren:
+Die Dienstdatei mit dem Befehl `sudo nano /usr/share/wohnungssuche/wohnungssuche.service` zum bearbeiten öffnen und die folgenden Umgebungsvariablen anpassen um das automatische versenden von Mails für neue Wohnungen zu aktivieren.
 
 ```
 # Zieladresse, kann auch die eigene Mail sein.
 # Empfohlen: Später eine Regel mit einer Weiterleitung an mehrere Adressen einrichten.
-Environment=SMTP_ADDRESS=youraddress
+SMTP_MAIL=your@mail.com
 # Adresse des Mailserver.
-Environment=SMTP_SERVER=yourserver
+SMTP_HOST=mailserver
 # Benutzername für die Anmeldung am Mailserver.
-Environment=SMTP_USERNAME=yourusername
+SMTP_USERNAME=username
 # Kennwort für die Anmeldung am Mailserver.
-Environment=SMTP_PASSWORD=yourpassword
+SMTP_PASSWORD=password
 ```
 
 Es wird für die Anmeldung am Mailserver immer SSL verwendet.

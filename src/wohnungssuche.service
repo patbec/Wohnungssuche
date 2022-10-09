@@ -4,7 +4,7 @@ Description=Stadtbau Wohnungssuche
 [Service]
 ExecStart=/usr/share/wohnungssuche/wohnungssuche
 SyslogIdentifier=Wohnungssuche
-Restart=always                  
+Restart=always
 RestartSec=5
 User=yourusername
 
