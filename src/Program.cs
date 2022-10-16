@@ -16,12 +16,16 @@ namespace Wohnungssuche
     const ulong MAX_ERROR_THRESHOLD = 15;
 
     static HttpClient httpClient;
+    static MailClient mailClient;
     static string htmlDocumentAppException;
     static string htmlDocumentItemFound;
 
     static async Task Main()
     {
       httpClient = new HttpClient();
+
+      // Get the smtp settings from the environment.
+      mailClient = MailClient.CreateFromEnvironment();
 
       // Cache mailing templates from filesystem.
       htmlDocumentItemFound = Helper.GetRessource(Path.Combine("templates", "item.html"));
@@ -75,7 +79,7 @@ namespace Wohnungssuche
                   .ReplaceHtmlEncoded("@size", item.Size ?? "Unbekannt")
                   .ReplaceHtmlEncoded("@date", item.Date ?? "Unbekannt");
 
-              Mailing.Send("Neue Wohnung gefunden", messageToSend);
+              mailClient.Send("Neue Wohnung gefunden", messageToSend);
               Cache.MakeKnown(item);
             }
           }
@@ -141,7 +145,7 @@ namespace Wohnungssuche
             .ReplaceHtmlEncoded("@message", exception.Message)
             .ReplaceHtmlEncoded("@stackwalk", exception.StackTrace);
 
-        Mailing.Send("Anwendungsfehler", messageToSend);
+        mailClient.Send("Anwendungsfehler", messageToSend);
       }
       catch (Exception innerException)
       {

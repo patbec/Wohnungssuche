@@ -37,7 +37,13 @@
                 "run"
             ],
             "options": {
-                "cwd": "${workspaceFolder}/src"
+                "cwd": "${workspaceFolder}/src",
+                "env": {
+                    "SMTP_MAIL": "hello@world.com",
+                    "SMTP_HOST": "smtp@world.com",
+                    "SMTP_USERNAME": "hello",
+                    "SMTP_PASSWORD": "world"
+                }
             },
             "problemMatcher": {
                 "pattern": {
