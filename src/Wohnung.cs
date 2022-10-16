@@ -17,9 +17,11 @@ namespace Wohnungssuche
     #region Parser Data
 
     private const string ImmoIdentifier = "immo-preview-group asidemain-container";
-    private const string ImmoTitle = "immodb_title";
-    private const string ImmoThumb = "immo-prev-thumb module";
-    private const string ImmoObject = "immo-preview-txt module";
+
+    // private const string ImmoTitle = "immodb_title";
+    // private const string ImmoThumb = "immo-prev-thumb module";
+    // private const string ImmoObject = "immo-preview-txt module";
+
     private const string ImmoData = "immo-data";
     private const string ImmoAvailable = "Verfügbar ab:";
     private const string ImmoRoomCount = "Zimmeranzahl: ";

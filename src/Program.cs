@@ -15,10 +15,18 @@ namespace Wohnungssuche
     /// </summary>
     const ulong MAX_ERROR_THRESHOLD = 15;
 
-    static readonly HttpClient httpClient = new();
+    static HttpClient httpClient;
+    static string htmlDocumentAppException;
+    static string htmlDocumentItemFound;
 
     static async Task Main()
     {
+      httpClient = new HttpClient();
+
+      // Cache mailing templates from filesystem.
+      htmlDocumentItemFound = Helper.GetRessource(Path.Combine("templates", "item.html"));
+      htmlDocumentAppException = Helper.GetRessource(Path.Combine("templates", "error.html"));
+
       try
       {
         Console.WriteLine($"Stadtbau Wohnungssuche - " + Helper.GetVersion());
@@ -27,10 +35,10 @@ namespace Wohnungssuche
         await Searching();
       }
       catch (OperationCanceledException) { }
-      catch (Exception ex)
+      catch (Exception exception)
       {
-        SendExceptionReport(ex);
-        Console.WriteLine($"Die Wohnungssuche wurde aufgrund von zu vielen Fehlern beendet: {ex}");
+        SendExceptionReport(exception);
+        Console.WriteLine($"Die Wohnungssuche wurde aufgrund von zu vielen Fehlern gestoppt: {exception}");
       }
       finally
       {
@@ -45,8 +53,6 @@ namespace Wohnungssuche
     {
       ulong errors = 0;
 
-      string htmlDocument = Helper.GetRessource(Path.Combine("templates", "mail.html"));
-
       while (true)
       {
         try
@@ -60,7 +66,7 @@ namespace Wohnungssuche
               byte[] image = await httpClient.GetByteArrayAsync(item.Thumb);
               string base64EmbeddedPreviewImage = Convert.ToBase64String(image);
 
-              string messageToSend = htmlDocument
+              string messageToSend = htmlDocumentItemFound
                   .ReplaceHtmlEncoded("@id", item.Id)
                   .ReplaceHtmlEncoded("@title", item.Title ?? "Es ist kein Titel vorhanden")
                   .ReplaceHtmlEncoded("@base64image", base64EmbeddedPreviewImage)
@@ -130,9 +136,7 @@ namespace Wohnungssuche
     {
       try
       {
-        string htmlDocument = Helper.GetRessource(Path.Combine("templates", "error.html"));
-
-        string messageToSend = htmlDocument
+        string messageToSend = htmlDocumentAppException
             .ReplaceHtmlEncoded("@threadshold", MAX_ERROR_THRESHOLD)
             .ReplaceHtmlEncoded("@message", exception.Message)
             .ReplaceHtmlEncoded("@stackwalk", exception.StackTrace);
