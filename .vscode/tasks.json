@@ -6,11 +6,11 @@
             "command": "dotnet",
             "type": "process",
             "args": [
-                "build",
-                "${workspaceFolder}/Wohnungssuche/wohnungssuche.csproj",
-                "/property:GenerateFullPaths=true",
-                "/consoleloggerparameters:NoSummary"
+                "build"
             ],
+            "options": {
+                "cwd": "${workspaceFolder}/src"
+            },
             "problemMatcher": "$msCompile"
         },
         {
@@ -18,11 +18,11 @@
             "command": "dotnet",
             "type": "process",
             "args": [
-                "publish",
-                "${workspaceFolder}/Wohnungssuche/wohnungssuche.csproj",
-                "/property:GenerateFullPaths=true",
-                "/consoleloggerparameters:NoSummary"
+                "publish"
             ],
+            "options": {
+                "cwd": "${workspaceFolder}/src"
+            },
             "problemMatcher": "$msCompile"
         },
         {
@@ -31,11 +31,11 @@
             "type": "process",
             "args": [
                 "watch",
-                "run",
-                "${workspaceFolder}/Wohnungssuche/wohnungssuche.csproj",
-                "/property:GenerateFullPaths=true",
-                "/consoleloggerparameters:NoSummary"
+                "run"
             ],
+            "options": {
+                "cwd": "${workspaceFolder}/src"
+            },
             "problemMatcher": "$msCompile"
         }
     ]

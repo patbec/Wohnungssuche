@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="de">
+
+<head>
+    <meta charset="utf-8">
+    <title>Anwendungsfehler</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <meta name="color-scheme" content="light dark">
+
+    <meta name="theme-color" media="(prefers-color-scheme:light)" content="#FF9900">
+    <meta name="theme-color" media="(prefers-color-scheme:dark)" content="#1E1E1E">
+
+    <style>
+        html {
+            font-family: system-ui, sans-serif;
+            padding: 0px;
+        }
+
+        body {
+            max-width: 1000px;
+            margin: auto;
+        }
+
+        main {
+            margin: 0 3.5%;
+        }
+
+        h2 {
+            color: #e14f13;
+            font-size: 28px;
+            font-style: normal;
+            font-weight: 600;
+        }
+
+        p {
+            color: #484848;
+            font-size: 18px;
+            font-style: normal;
+            font-weight: 400;
+            margin: 12px 0px;
+            line-height: 125%;
+        }
+
+        hr {
+            border: 1px solid #707070;
+            margin-top: 28px;
+            margin-bottom: 16px;
+        }
+
+        @media (prefers-color-scheme: dark) {
+            p {
+                color: #C9C9C9
+            }
+
+            h2 {
+                color: #F18600;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <main>
+        <h2>Anwendungsfehler</h2>
+
+        <p>Beim Ausführen der Anwendung wurde der Grenzwert von <b>@threadshold Folgefehlern</b> überschritten. Die
+            Anwendung wird nun beendet.</p>
+        <p>
+            <b>Fehlermeldung:</b>
+            <br>
+            <i>@message</i>
+        </p>
+        <p>
+            <b>Stapelverlauf:</b>
+            <br>
+            <i>@stackwalk</i>
+        </p>
+        <hr>
+        <p><b>Zeitpunkt:</b> @time</p>
+    </main>
+</body>
+
+</html>

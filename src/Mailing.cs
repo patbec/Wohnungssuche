@@ -1,42 +1,19 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Net;
-using System.Net.Mail;
-using System.Text;
 
 namespace Wohnungssuche
 {
   public class Mailing
   {
     /// <summary>
-    /// Attempts to send an email and ignores errors.
-    /// </summary>
-    /// <param name="titel">Message title.</param>
-    /// <param name="message">Content of the message as HTML.</param>
-    public static bool TrySend(string titel, string message)
-    {
-      try
-      {
-        Send(titel, message);
-
-        return true;
-      }
-      catch (Exception ex)
-      {
-        return false;
-      }
-    }
-
-    /// <summary>
     /// Sends an e-mail.
     /// </summary>
-    /// <param name="titel">Message title.</param>
+    /// <param name="title">Message title.</param>
     /// <param name="message">Content of the message as HTML.</param>
-    public static void Send(string titel, string message)
+    public static void Send(string title, string message)
     {
 #if DEBUG
-        // Infomeldung schreiben.
-        Console.WriteLine("Sending messages during a debug session is disabled.");
+      // Infomeldung schreiben.
+      Console.WriteLine("Sending messages during a debug session is disabled.");
 #else
       // Get the smtp settings from the environment.
       string mail = Environment.GetEnvironmentVariable("SMTP_MAIL");
@@ -63,7 +40,7 @@ namespace Wohnungssuche
       }
 
       // Create a new message.
-      MailMessage mail = new(mail, address, titel, message)
+      MailMessage mail = new(mail, address, title, message)
       {
         // Enable support for HTML.
         IsBodyHtml = true
@@ -77,5 +54,6 @@ namespace Wohnungssuche
       }.Send(mail);
     }
 #endif
+    }
   }
 }

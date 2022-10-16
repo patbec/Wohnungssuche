@@ -1,25 +1,27 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
-using System.Data;
 using System.IO;
-using System.Linq;
-using System.Net;
-using System.Reflection;
-using System.Runtime.CompilerServices;
-using System.Security.Cryptography;
-using System.Text;
+using System.Net.Http;
 using System.Threading.Tasks;
-using Internal;
+using HtmlAgilityPack;
 
 namespace Wohnungssuche
 {
   public class Program
   {
-    static async Task Main(string[] args)
+    /// <summary>
+    /// Maximale Anzahl an Folgefehlern, bis die Anwendung beendet wird.
+    /// </summary>
+    const ulong MAX_ERROR_THRESHOLD = 15;
+
+    static readonly HttpClient httpClient = new();
+
+    static async Task Main()
     {
       try
       {
-        Console.WriteLine($"Stadtbau Wohnungssuche - " + GetCurrentVersion());
+        Console.WriteLine($"Stadtbau Wohnungssuche - " + Helper.GetVersion());
         Console.WriteLine($"Die Wohnungssuche wurde gestartet...");
 
         await Searching();
@@ -27,27 +29,12 @@ namespace Wohnungssuche
       catch (OperationCanceledException) { }
       catch (Exception ex)
       {
-        SendExceptionMail(ex);
+        SendExceptionReport(ex);
         Console.WriteLine($"Die Wohnungssuche wurde aufgrund von zu vielen Fehlern beendet: {ex}");
       }
       finally
       {
         Console.WriteLine($"Die Wohnungssuche wurde beendet.");
-      }
-    }
-
-    private void SendExceptionMail(Exception ex)
-    {
-      StringWriter messageToSend = new();
-
-      messageToSend.WriteLine("<p style='font-family: system-ui'>Die Wohnungssuche wurde aufgrund von zu vielen Fehlern beendet.</p>");
-      messageToSend.WriteLine();
-      messageToSend.WriteLine("<p style='font-family: monospace'>{0}</p>", ex);
-
-      bool isSucessfully = Mailing.TrySend("Anwendungsfehler", messageToSend.ToString());
-      if (!isSucessfully)
-      {
-        Console.WriteLine("Die Fehlermeldung konnte nicht per Mail versendet werden.");
       }
     }
 
@@ -57,27 +44,30 @@ namespace Wohnungssuche
     static async Task Searching()
     {
       ulong errors = 0;
-      ulong threshold = 15;
+
+      string htmlDocument = Helper.GetRessource(Path.Combine("templates", "mail.html"));
 
       while (true)
       {
         try
         {
-          foreach (Wohnung item in await GetItems())
+          await foreach (Wohnung item in GetItems())
           {
             if (!Cache.IsKnown(item))
             {
               Console.WriteLine("Es wurde eine neue Wohnung gefunden!");
 
-              // Nachricht als HTML formatieren.
-              string messageToSend = htmlBody
-                  .Replace("@id", WebUtility.HtmlEncode(e.Id))
-                  .Replace("@title", WebUtility.HtmlEncode(e.Title))
-                  .Replace("@image", WebUtility.HtmlEncode(e.Thumb))
-                  .Replace("@rooms", WebUtility.HtmlEncode(e.Rooms))
-                  .Replace("@price", WebUtility.HtmlEncode(e.Price))
-                  .Replace("@size", WebUtility.HtmlEncode(e.Size))
-                  .Replace("@date", WebUtility.HtmlEncode(e.Date));
+              byte[] image = await httpClient.GetByteArrayAsync(item.Thumb);
+              string base64EmbeddedPreviewImage = Convert.ToBase64String(image);
+
+              string messageToSend = htmlDocument
+                  .ReplaceHtmlEncoded("@id", item.Id)
+                  .ReplaceHtmlEncoded("@title", item.Title ?? "Es ist kein Titel vorhanden")
+                  .ReplaceHtmlEncoded("@base64image", base64EmbeddedPreviewImage)
+                  .ReplaceHtmlEncoded("@rooms", item.Rooms ?? "Unbekannt")
+                  .ReplaceHtmlEncoded("@price", item.Price ?? "Unbekannt")
+                  .ReplaceHtmlEncoded("@size", item.Size ?? "Unbekannt")
+                  .ReplaceHtmlEncoded("@date", item.Date ?? "Unbekannt");
 
               Mailing.Send("Neue Wohnung gefunden", messageToSend);
               Cache.MakeKnown(item);
@@ -92,12 +82,12 @@ namespace Wohnungssuche
         }
         catch (Exception ex)
         {
-          Console.WriteLine("Bei der Suche nach Wohnungen ist ein Fehler aufgetreten:" + Environment.NewLine + e.Message);
+          Console.WriteLine("Bei der Suche nach Wohnungen ist ein Fehler aufgetreten:" + Environment.NewLine + ex.Message);
 
           errors += 1;
 
           // Rethrow if threshold is reached.
-          if (_current >= _threshold) throw ex;
+          if (errors >= MAX_ERROR_THRESHOLD) throw;
         }
       }
     }
@@ -106,10 +96,10 @@ namespace Wohnungssuche
     /// Ruft eine Auflistung von Wohnungen ab. Die Einstellungen sowie Parameter werden im Konstruktor festgelegt.
     /// </summary>
     /// <returns>Auflistung von verfügbaren Wohnungen, die den Suchkriterien entsprechen.</returns>
-    static async IAsyncEnumerator<Wohnung> GetItems()
+    static async IAsyncEnumerable<Wohnung> GetItems()
     {
       string SearchBaseUri = "https://www.stadtbau-wuerzburg.de/wohnungssuche/";
-      string XPathQuery = "//div[@class='immo-preview-group asidemain-container']";
+      string XPathQuery = "//div[@class='immo-preview-group asidemain-container' and a[not(@class='immo-pinnded-listing-link')]]";
 
 
       // Anfrage senden.
@@ -132,13 +122,27 @@ namespace Wohnungssuche
       foreach (HtmlNode node in nodes)
       {
         // Aus der Teilzeichenfolge ein Wohnungsobjekt erstellen und zurückgeben.
-        yield return ApartmentElement.Parse(node);
+        yield return Wohnung.Parse(node);
       }
     }
 
-    static Version GetCurrentVersion()
+    static void SendExceptionReport(Exception exception)
     {
-      return Assembly.GetExecutingAssembly().GetName().Version;
+      try
+      {
+        string htmlDocument = Helper.GetRessource(Path.Combine("templates", "error.html"));
+
+        string messageToSend = htmlDocument
+            .ReplaceHtmlEncoded("@threadshold", MAX_ERROR_THRESHOLD)
+            .ReplaceHtmlEncoded("@message", exception.Message)
+            .ReplaceHtmlEncoded("@stackwalk", exception.StackTrace);
+
+        Mailing.Send("Anwendungsfehler", messageToSend);
+      }
+      catch (Exception innerException)
+      {
+        Console.WriteLine("Die Fehlermeldung konnte nicht per Mail versendet werden: " + Environment.NewLine + innerException.Message);
+      }
     }
   }
 }

@@ -1,3 +1,6 @@
+using System;
+using System.IO;
+
 namespace Wohnungssuche
 {
   public static class Cache
@@ -6,7 +9,7 @@ namespace Wohnungssuche
     {
       if (item == null) throw new ArgumentNullException(nameof(item));
 
-      return Path.Combine(Path.GetTempPath(), $"Wohnung-{item.Id}.tmp");
+      return Path.Combine(Path.GetTempPath(), $"tmp-{item.Id}.tmp");
     }
     public static bool IsKnown(Wohnung item)
     {

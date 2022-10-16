@@ -6,20 +6,20 @@
     <Copyright>Patrick Becker</Copyright>
     <AssemblyTitle>wohnungssuche</AssemblyTitle>
     <AssemblyVersion>1.2.0</AssemblyVersion>
+    <OutputType>Exe</OutputType>
     <Description>Eine kleine Anwendung um im Raum Würzburg automatisch nach neuen Wohnungen zu suchen.</Description>
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="HtmlAgilityPack" Version="1.11.34" />
+    <PackageReference Include="HtmlAgilityPack" Version="1.11.46" />
   </ItemGroup>
 
-   <ItemGroup>
-    <None Update="banner.template">
+  <ItemGroup>
+    <None Update="templates/mail.html">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Update="wohnungssuche.service">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    <None Update="templates/error.html">
+        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-   </ItemGroup>
-
+  </ItemGroup>
 </Project>
