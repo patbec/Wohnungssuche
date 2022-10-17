@@ -39,10 +39,10 @@
             "options": {
                 "cwd": "${workspaceFolder}/src",
                 "env": {
-                    "SMTP_MAIL": "hello@world.com",
-                    "SMTP_HOST": "smtp@world.com",
-                    "SMTP_USERNAME": "hello",
-                    "SMTP_PASSWORD": "world"
+                    "MAIL": "hello@world.com",
+                    "HOST": "smtp@world.com",
+                    "USERNAME": "hello",
+                    "PASSWORD": "world"
                 }
             },
             "problemMatcher": {
