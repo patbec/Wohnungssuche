@@ -14,6 +14,10 @@ namespace Wohnungssuche
     /// Maximale Anzahl an Folgefehlern, bis die Anwendung beendet wird.
     /// </summary>
     const ulong MAX_ERROR_THRESHOLD = 15;
+    /// <summary>
+    /// 600 Sekunden bis zur nächsten Suche warten.
+    /// </summary>
+    const ulong SEARCH_INTERVAL_SEC = 600;
 
     static HttpClient httpClient;
     static MailClient mailClient;
@@ -34,6 +38,7 @@ namespace Wohnungssuche
       try
       {
         Console.WriteLine($"Stadtbau Wohnungssuche - " + Helper.GetVersion());
+        Console.WriteLine($"Suchintervall: {SEARCH_INTERVAL_SEC} Sekunden");
         Console.WriteLine($"Die Wohnungssuche wurde gestartet...");
 
         await Searching();
@@ -42,7 +47,7 @@ namespace Wohnungssuche
       catch (Exception exception)
       {
         SendExceptionReport(exception);
-        Console.WriteLine($"Die Wohnungssuche wurde aufgrund von zu vielen Fehlern gestoppt: {exception}");
+        Console.WriteLine($"Die Wohnungssuche wurde aufgrund von zu vielen Fehlern gestoppt: {exception.Message}");
       }
       finally
       {
@@ -56,6 +61,7 @@ namespace Wohnungssuche
     static async Task Searching()
     {
       ulong errors = 0;
+      ulong runs = 0;
 
       while (true)
       {
@@ -84,15 +90,16 @@ namespace Wohnungssuche
             }
           }
 
-          Console.WriteLine("Suchvorgang wurde erfolgreich abgeschlossen.");
-
           errors = 0;
+          runs++;
 
-          await Task.Delay(TimeSpan.FromSeconds(600));
+          Console.WriteLine("[{0}] Suchvorgang wurde erfolgreich abgeschlossen.", runs.ToString("D4"));
+
+          await Task.Delay(TimeSpan.FromSeconds(SEARCH_INTERVAL_SEC));
         }
-        catch (Exception ex)
+        catch (Exception exception)
         {
-          Console.WriteLine("Bei der Suche nach Wohnungen ist ein Fehler aufgetreten:" + Environment.NewLine + ex.Message);
+          Console.WriteLine("Bei der Suche nach Wohnungen ist ein Fehler aufgetreten:" + Environment.NewLine + exception.Message);
 
           errors += 1;
 
@@ -142,8 +149,9 @@ namespace Wohnungssuche
       {
         string messageToSend = htmlDocumentAppException
             .ReplaceHtmlEncoded("@threadshold", MAX_ERROR_THRESHOLD)
-            .ReplaceHtmlEncoded("@message", exception.Message)
-            .ReplaceHtmlEncoded("@stackwalk", exception.StackTrace);
+            .ReplaceHtmlEncoded("@message", exception)
+            .ReplaceHtmlEncoded("@stackwalk", exception.StackTrace)
+            .ReplaceHtmlEncoded("@time", DateTime.Now);
 
         mailClient.Send("Anwendungsfehler", messageToSend);
       }
