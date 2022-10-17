@@ -19,10 +19,6 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Get tag
-        id: repository
-        run: echo  "::set-output name=tag::$(git describe --tags HEAD)"
-
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v2
 
@@ -41,4 +37,4 @@ jobs:
           context: "{{defaultContext}}:src"
           platforms: linux/amd64,linux/arm64
           push: true
-          tags: ${{ secrets.DOCKERHUB_USERNAME }}/wohnungssuche:${{ steps.repository.outputs.tag }}
+          tags: ${{ secrets.DOCKERHUB_USERNAME }}/wohnungssuche:latest
