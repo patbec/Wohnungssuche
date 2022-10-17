@@ -1,6 +1,6 @@
 # Wohnungssuche
 
-Example of a <i>apartment</i> and <i>error notification</i> email from the application.
+Example of a <i>apartment</i> and <i>Added container error notification</i> email from the application.
 ![Screenshot Banner](/docs/screenshot-item-dark.png#gh-dark-mode-only)
 ![Screenshot Banner](/docs/screenshot-item-light.png#gh-light-mode-only)
 ![Screenshot Banner](/docs/screenshot-error-dark.png#gh-dark-mode-only)
@@ -22,10 +22,10 @@ Anwendungsfehler
 
 Use the docker container an and set this enviroment variables:
 ```
-SMTP_MAIL=your@mail.com
-SMTP_HOST=mailserver
-SMTP_USERNAME=username
-SMTP_PASSWORD=password
+MAIL=your@mail.com
+HOST=mailserver
+USERNAME=username
+PASSWORD=password
 ```
 
 SSL is always used for logging in to the mail server.
