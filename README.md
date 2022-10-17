@@ -1,57 +1,40 @@
 # Wohnungssuche
 
-![Screenshot Banner](/docs/screenshot.png)
+Example of a <i>apartment</i> and <i>error notification</i> email from the application.
+![Screenshot Banner](/docs/screenshot-item-dark.png#gh-dark-mode-only)
+![Screenshot Banner](/docs/screenshot-item-light.png#gh-light-mode-only)
+![Screenshot Banner](/docs/screenshot-error-dark.png#gh-dark-mode-only)
+![Screenshot Banner](/docs/screenshot-error-light.png#gh-light-mode-only)
 
-### Beschreibung
-Eine kleine Anwendung um im Raum Würzburg automatisch nach neuen Wohnungen zu suchen. Der Anbieter Stadtbau bietet keine Möglichkeit sich neue Angebote via Mail zusenden zu lassen.
+## Description
+A small application to automatically search for new apartments in the Würzburg area. The provider Stadtbau does not offer the possibility to receive new offers via e-mail.
 
-### Installation und Ausführung
+## Configuration
+Send the mail to yourself and create a forwarding rule that affects the mail. Alternatively, you can use a distribution list in Azure Active Directory.
 
-Die Anwendung wird in den Ordner `/usr/share/wohnungssuche` installiert. Mit der im Installationsordner enthaltenen **systemd** Dienstdatei ist eine Ausführung im Hintergrund möglich.
-Die Dienstdatei mit dem Befehl `sudo nano /usr/share/wohnungssuche/wohnungssuche.service` zum bearbeiten öffnen und die folgenden Umgebungsvariablen anpassen um das automatische versenden von Mails für neue Wohnungen zu aktivieren.
-
+There are the following mail titles:
 ```
-# Zieladresse, kann auch die eigene Mail sein.
-# Empfohlen: Später eine Regel mit einer Weiterleitung an mehrere Adressen einrichten.
+Neue Wohnung gefunden
+```
+```
+Anwendungsfehler
+```
+
+Use the docker container an and set this enviroment variables:
+```
 SMTP_MAIL=your@mail.com
-# Adresse des Mailserver.
 SMTP_HOST=mailserver
-# Benutzername für die Anmeldung am Mailserver.
 SMTP_USERNAME=username
-# Kennwort für die Anmeldung am Mailserver.
 SMTP_PASSWORD=password
 ```
 
-Es wird für die Anmeldung am Mailserver immer SSL verwendet.
+SSL is always used for logging in to the mail server.
 
-Die Anwendung sollte als normaler Benutzer mit eingeschränkten Rechten ausgeführt werden, siehe **systemd** unter `User=youruser`.
+## License
 
-Wenn das bearbeiten der **systemd** Dienstdatei abgeschlossen ist, muss diese noch aktiviert werden:
+This project is licensed under MIT - See the [LICENSE](LICENSE) file for more information.
 
-```
-# Die Dienstdatei zu den system-Diensten hinzufügen.
-sudo cp /usr/share/wohnungssuche/wohnungssuche.service /etc/systemd/system/wohnungssuche.service
-# Nach der hinzugefügten Datei suchen.
-sudo systemctl daemon-reload
-# Den Dienst aktivieren.
-sudo systemctl enable wohnungssuche
-# Den Dienst starten.
-sudo systemctl start wohnungssuche
-```
-
-Mit dem folgenden Befehl kann geprüft werden ob der Dienst korrekt ausgeführt wird:
-
-```
-# Status Abfragen.
-sudo systemctl status wohnungssuche
-```
-
-## Autor
-
-* **Patrick Becker** - [GitHub](https://github.com/patbec)
-
-E-Mail: [git.bec@outlook.de](mailto:git.bec@outlook.de)
-
-## Lizenz
-
-Dieses Projekt ist unter der MIT-Lizenz lizenziert - Weitere Informationen finden Sie in der Datei [LICENSE](LICENSE)
+---
+<p align="right">
+    &uarr; <a href="#wohnungssuche">Back to top</a>
+</p>
