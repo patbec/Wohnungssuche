@@ -29,7 +29,7 @@ namespace Wohnungssuche
       httpClient = new HttpClient();
 
       // Get the smtp settings from the environment.
-      mailClient = MailClient.CreateFromEnvironment();
+      mailClient = MailClient.CreateFromDockerEnvironment();
 
       // Cache mailing templates from filesystem.
       htmlDocumentItemFound = Helper.GetRessource(Path.Combine("templates", "item.html"));
