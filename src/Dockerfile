@@ -15,7 +15,6 @@ LABEL org.opencontainers.image.description="Eine kleine Anwendung um im Raum Wü
 LABEL org.opencontainers.image.url="https://github.com/patbec"
 LABEL org.opencontainers.image.documentation="https://github.com/patbec/wohnungssuche.git"
 LABEL org.opencontainers.image.licenses="MIT"
-LABEL org.label-schema.docker.cmd="docker run beckerhub/wohnungssuche -e MAIL=your@mail.com -e HOST=outlook.office365.com -e USERNAME=username -e PASSWORD=password"
 WORKDIR /app
 COPY --from=build-env /app/out .
 ENTRYPOINT ["dotnet", "wohnungssuche.dll"]

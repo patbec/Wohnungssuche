@@ -5,7 +5,7 @@
     <NeutralLanguage>de-DE</NeutralLanguage>
     <Copyright>Patrick Becker</Copyright>
     <AssemblyTitle>wohnungssuche</AssemblyTitle>
-    <AssemblyVersion>1.2.0</AssemblyVersion>
+    <AssemblyVersion>1.2.1</AssemblyVersion>
     <OutputType>Exe</OutputType>
     <Description>Eine kleine Anwendung um im Raum Würzburg automatisch nach neuen Wohnungen zu suchen.</Description>
   </PropertyGroup>

@@ -20,12 +20,13 @@ Neue Wohnung gefunden
 Anwendungsfehler
 ```
 
-Use the docker container an and set this enviroment variables:
+Use Docker secrets and set the following environment variables to configure the mailing:
 ```
-MAIL=your@mail.com
-HOST=mailserver
-USERNAME=username
-PASSWORD=password
+WH_SMTP_HOST_FILE
+WH_SMTP_USER_FILE
+WH_SMTP_PASSWORD_FILE
+WH_SMTP_FROM_ADDRESS_FILE
+WH_SMTP_TO_ADDRESS_FILE
 ```
 
 SSL is always used for logging in to the mail server.
