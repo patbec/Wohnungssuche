@@ -47,7 +47,7 @@ secrets:
 services:
   wohnungssuche:
     container_name: wohnungssuche
-    image: beckerhub/wohnungssuche:lastest
+    image: beckerhub/wohnungssuche:latest
     restart: unless-stopped
     volumes:
       - wohnungssuche:/tmp/wohnungssuche/:rw
