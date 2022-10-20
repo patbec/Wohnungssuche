@@ -36,7 +36,7 @@ namespace Wohnungssuche
       }
       if (string.IsNullOrWhiteSpace(smtpFromAddressFile))
       {
-        throw new ArgumentNullException(nameof(smtpToAddressFile), "Set the WH_SMTP_FROM_ADDRESS_FILE setting in the environment variables.");
+        throw new ArgumentNullException(nameof(smtpFromAddressFile), "Set the WH_SMTP_FROM_ADDRESS_FILE setting in the environment variables.");
       }
       if (string.IsNullOrWhiteSpace(smtpToAddressFile))
       {
