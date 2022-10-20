@@ -9,7 +9,7 @@ namespace Wohnungssuche
   public static class NodeExtension
   {
     /// <summary>
-    /// Ruf einen Node mit dem angegebenen Attributwert ab.
+    /// Ruf einen Node mit dem angegebenen Attributwert aus einer CSS Klasse ab.
     /// </summary>
     /// <param name="attribute">Gesuchter Attributwert.</param>
     /// <returns>Der gefundene Node mit dem angegebenen Attributwert.</returns>

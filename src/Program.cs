@@ -2,6 +2,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Net.Http;
 using System.Threading.Tasks;
 using HtmlAgilityPack;
@@ -117,7 +118,7 @@ namespace Wohnungssuche
     static async IAsyncEnumerable<Wohnung> GetItems()
     {
       string SearchBaseUri = "https://www.stadtbau-wuerzburg.de/wohnungssuche/";
-      string XPathQuery = "//div[@class='immo-preview-group asidemain-container' and a[not(@class='immo-pinnded-listing-link')]]";
+      string XPathQuery = "//div[contains(@class, 'immo-preview-group asidemain-container')]";
 
 
       // Anfrage senden.
@@ -132,12 +133,15 @@ namespace Wohnungssuche
       // Mit XPath verfügbaren Wohnungen auslesen.
       HtmlNodeCollection nodes = pageDocument.DocumentNode.SelectNodes(XPathQuery);
 
+      // Stadtbau eigene Werbung herausfiltern.
+      IEnumerable<HtmlNode> htmlNodes = nodes.Where(n => n.ChildNodes.GetNodeByAttribute("immo-pinnded-listing-link") == null).ToList();
+
       // Falls keine Wohnungen vorhanden sind, Abbrechen.
-      if (nodes == null)
+      if (htmlNodes == null)
         yield break;
 
       // Auflistung von gefundenen Wohnungen.
-      foreach (HtmlNode node in nodes)
+      foreach (HtmlNode node in htmlNodes)
       {
         // Aus der Teilzeichenfolge ein Wohnungsobjekt erstellen und zurückgeben.
         yield return Wohnung.Parse(node);
