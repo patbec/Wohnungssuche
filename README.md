@@ -29,6 +29,45 @@ WH_SMTP_FROM_ADDRESS_FILE
 WH_SMTP_TO_ADDRESS_FILE
 ```
 
+Sample docker compose file:
+```
+version: '3.9'
+volumes:
+  wohnungssuche:
+    external: true
+secrets:
+  smtp_password:
+    external: true
+  smtp_hostname:
+    external: true
+  smtp_username:
+    external: true
+  smtp_to_address:
+    external: true
+services:
+  wohnungssuche:
+    container_name: wohnungssuche
+    image: beckerhub/wohnungssuche:lastest
+    restart: unless-stopped
+    volumes:
+      - wohnungssuche:/tmp/:rw
+      - /etc/localtime:/etc/localtime:ro
+    environment:
+      - WH_SMTP_HOST_FILE=/run/secrets/smtp_hostname
+      - WH_SMTP_USER_FILE=/run/secrets/smtp_username
+      - WH_SMTP_PASSWORD_FILE=/run/secrets/smtp_password
+      - WH_SMTP_FROM_ADDRESS_FILE=/run/secrets/smtp_username
+      - WH_SMTP_TO_ADDRESS_FILE=/run/secrets/smtp_to_address
+    secrets:
+      - smtp_hostname
+      - smtp_username
+      - smtp_password
+      - smtp_to_address
+    networks:
+      - default
+    user: "${PUID}:${PGID}"
+
+```
 SSL is always used for logging in to the mail server.
 
 ## License
