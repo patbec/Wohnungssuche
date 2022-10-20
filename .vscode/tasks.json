@@ -39,10 +39,11 @@
             "options": {
                 "cwd": "${workspaceFolder}/src",
                 "env": {
-                    "MAIL": "hello@world.com",
-                    "HOST": "smtp@world.com",
-                    "USERNAME": "hello",
-                    "PASSWORD": "world"
+                    "WH_SMTP_HOST_FILE": "/Users/patbec/.cache/private/smtp_hostname",
+                    "WH_SMTP_USER_FILE": "/Users/patbec/.cache/private/smtp_username",
+                    "WH_SMTP_PASSWORD_FILE": "/Users/patbec/.cache/private/smtp_password",
+                    "WH_SMTP_FROM_ADDRESS_FILE": "/Users/patbec/.cache/private/smtp_username",
+                    "WH_SMTP_TO_ADDRESS_FILE": "/Users/patbec/.cache/private/smtp_username"
                 }
             },
             "problemMatcher": {
