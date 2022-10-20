@@ -39,6 +39,7 @@ namespace Wohnungssuche
       {
         Console.WriteLine($"Stadtbau Wohnungssuche - " + Helper.GetVersion());
         Console.WriteLine($"Suchintervall: {SEARCH_INTERVAL_SEC} Sekunden");
+        Console.WriteLine($"Gesendete Wohnungen: {Path.GetTempPath()}");
         Console.WriteLine($"Die Wohnungssuche wurde gestartet...");
 
         await Searching();
