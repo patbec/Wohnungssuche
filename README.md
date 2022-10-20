@@ -50,7 +50,7 @@ services:
     image: beckerhub/wohnungssuche:lastest
     restart: unless-stopped
     volumes:
-      - wohnungssuche:/tmp/:rw
+      - wohnungssuche:/tmp/wohnungssuche/:rw
       - /etc/localtime:/etc/localtime:ro
     environment:
       - WH_SMTP_HOST_FILE=/run/secrets/smtp_hostname
