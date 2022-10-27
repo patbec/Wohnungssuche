@@ -31,7 +31,7 @@ namespace Wohnungssuche
 
     private static string GetFilePath(Wohnung item)
     {
-      return Path.Combine(Path.GetTempPath(), "wohnungssuche", $"tmp-{item.Id}.tmp");
+      return Path.Combine("cache", $"tmp-{item.Id}.json");
     }
   }
 }

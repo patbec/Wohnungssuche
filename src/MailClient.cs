@@ -81,11 +81,11 @@ namespace Wohnungssuche
         Credentials = new NetworkCredential(_smtpUser, _smtpPassword)
 
       };
-#if DEBUG
-      Console.WriteLine("Sending messages during a debug session is disabled.");
-#else
+      // #if DEBUG
+      //       Console.WriteLine("Sending messages during a debug session is disabled.");
+      // #else
       smtpClient.Send(mailMessage);
-#endif
+      // #endif
     }
   }
 }
