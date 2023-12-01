@@ -15,15 +15,16 @@ namespace Wohnungssuche
     /// Maximale Anzahl an Folgefehlern, bis die Anwendung beendet wird.
     /// </summary>
     const ulong MAX_ERROR_THRESHOLD = 15;
+
     /// <summary>
     /// 600 Sekunden bis zur nächsten Suche warten.
     /// </summary>
     const ulong SEARCH_INTERVAL_SEC = 600;
 
     static HttpClient httpClient;
-    static MailClient mailClient;
-    static string htmlDocumentAppException;
-    static string htmlDocumentItemFound;
+    // static MailClient mailClient;
+    // static string htmlDocumentAppException;
+    // static string htmlDocumentItemFound;
 
     static async Task Main()
     {

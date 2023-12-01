@@ -1,33 +1,27 @@
 # Wohnungssuche
 
-Example of a <i>apartment</i> and <i>Added container error notification</i> email from the application.
-![Screenshot Banner](/docs/screenshot-item-dark.png#gh-dark-mode-only)
-![Screenshot Banner](/docs/screenshot-item-light.png#gh-light-mode-only)
-![Screenshot Banner](/docs/screenshot-error-dark.png#gh-dark-mode-only)
-![Screenshot Banner](/docs/screenshot-error-light.png#gh-light-mode-only)
+Example of a <i>apartment</i> notification from the telegram bot.
+
+![Screenshot Banner](/docs/screenshot-telegram.png)
 
 ## Description
-A small application to automatically search for new apartments in the Würzburg area. The provider Stadtbau does not offer the possibility to receive new offers via e-mail.
+A small application to automatically search for new apartments in the Würzburg area. The provider Stadtbau does not offer the possibility to receive new offers via push notification.
 
 ## Configuration
-Send the mail to yourself and create a forwarding rule that affects the mail. Alternatively, you can use a distribution list in Azure Active Directory.
 
-There are the following mail titles:
-```
-Neue Wohnung gefunden
-```
-```
-Anwendungsfehler
-```
+In the previous application version, emails were used for notifications. Due to limitations in sending mails (Microsoft identifies the mails partially as spam, SMTP basic auth is no longer supported etc.) a <b>Telegram bot</b> is now used.
 
 Use Docker secrets and set the following environment variables to configure the mailing:
 ```
-WH_SMTP_HOST_FILE
-WH_SMTP_USER_FILE
-WH_SMTP_PASSWORD_FILE
-WH_SMTP_FROM_ADDRESS_FILE
-WH_SMTP_TO_ADDRESS_FILE
+TELEGRAM_TOKEN_FILE
+TELEGRAM_CHANNEL_FILE
+
+OR
+
+TELEGRAM_TOKEN
+TELEGRAM_CHANNEL
 ```
+> An environment variable such as `TELEGRAM_CHANNEL` is preferred over the file reference `TELEGRAM_CHANNEL_FILE`.
 
 Sample docker compose file:
 ```
@@ -36,13 +30,9 @@ volumes:
   wohnungssuche:
     external: true
 secrets:
-  smtp_password:
+  telegram_token:
     external: true
-  smtp_hostname:
-    external: true
-  smtp_username:
-    external: true
-  smtp_to_address:
+  telegram_channel:
     external: true
 services:
   wohnungssuche:
@@ -53,22 +43,15 @@ services:
       - wohnungssuche:/tmp/wohnungssuche/:rw
       - /etc/localtime:/etc/localtime:ro
     environment:
-      - WH_SMTP_HOST_FILE=/run/secrets/smtp_hostname
-      - WH_SMTP_USER_FILE=/run/secrets/smtp_username
-      - WH_SMTP_PASSWORD_FILE=/run/secrets/smtp_password
-      - WH_SMTP_FROM_ADDRESS_FILE=/run/secrets/smtp_username
-      - WH_SMTP_TO_ADDRESS_FILE=/run/secrets/smtp_to_address
+      - TELEGRAM_TOKEN_FILE=/run/secrets/telegram_token
+      - TELEGRAM_CHANNEL_FILE=/run/secrets/telegram_channel
     secrets:
-      - smtp_hostname
-      - smtp_username
-      - smtp_password
-      - smtp_to_address
+      - telegram_token
+      - telegram_channel
     networks:
       - default
     user: "${PUID}:${PGID}"
-
 ```
-SSL is always used for logging in to the mail server.
 
 ## License
 

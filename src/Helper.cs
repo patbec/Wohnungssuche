@@ -7,22 +7,37 @@ namespace Wohnungssuche
 {
   public static class Helper
   {
-    public static string GetRessource(string fileName)
-    {
-      return File.ReadAllText(Path.Combine(AppContext.BaseDirectory, fileName));
-    }
-
     public static Version GetVersion()
     {
       return Assembly.GetExecutingAssembly().GetName().Version;
     }
 
     /// <summary>
-    /// Erweitert den Typ <see cref="string"/> um eine Funktion zum formatierten Ersetzen von Werten.
+    /// Gets the specified environment variable.
+    /// Additionally reading from a file is supported, see docker secrets for more informations.
     /// </summary>
-    public static string ReplaceHtmlEncoded(this string value, string oldValue, object newValue)
+    /// <param name="name">Environment variable with or without _FILE extension.</param>
+    /// <returns>Contents of the environment variable.</returns>
+    public static string GetEnvironmentVariable(string name)
     {
-      return value.Replace(oldValue, WebUtility.HtmlEncode(newValue.ToString()));
+      string content = Environment.GetEnvironmentVariable(name);
+
+      if (content == null)
+      {
+        // Checks if the environment variable is set as file.
+        string filePath = Environment.GetEnvironmentVariable(name + "_FILE");
+
+        if (filePath == null)
+        {
+          // Environment variable is not set.
+          return null;
+        }
+
+        // Read the file (docker secret).
+        content = File.ReadAllText(filePath);
+      }
+
+      return content;
     }
   }
 }
